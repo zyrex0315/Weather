@@ -26,3 +26,4 @@ Desktop.ini
 
 # Optional: VSCode settings
 .vscode/ 
+node_modules
