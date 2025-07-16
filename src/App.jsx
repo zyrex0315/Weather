@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
       
-      <BrowserRouter>
+      <BrowserRouter basename="/Weather">
         <Routes>
           <Route path="/" element={<Index />} />
           
