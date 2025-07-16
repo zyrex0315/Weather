@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# production
+/dist
+/build
+
+# misc
+.DS_Store
+.env
+.env.*
+*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Vite
+.vite
+
+# Optional: VSCode settings
+.vscode/ 
