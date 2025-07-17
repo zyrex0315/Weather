@@ -8,7 +8,7 @@ import { geocodeCity, fetchCurrentWeather, fetchForecastWeather } from '@/lib/ap
 import CurrentWeather from './CurrentWeather';
 import HourlyForecast from './HourlyForecast';
 import DailyForecast from './DailyForecast';
-import Alerts from './Alerts';
+
 
 const DEFAULT_CITY = 'Butwal';
 
@@ -23,7 +23,7 @@ function groupForecastByDay(forecastList) {
   return Object.values(days);
 }
 
-// Helper: map temperature to gradient
+
 function getTempGradient(temp) {
   if (temp == null) return 'from-blue-200 via-blue-100 to-blue-300';
   if (temp < 5) return 'from-blue-900 via-blue-600 to-blue-300'; // very cold
@@ -34,17 +34,16 @@ function getTempGradient(temp) {
 }
 
 function normalizeDailyForecast(forecastList) {
-  // Group by day (YYYY-MM-DD)
+ 
   const days = {};
   forecastList.forEach(item => {
     const date = new Date(item.dt * 1000);
     const day = date.toISOString().split('T')[0];
     if (!days[day]) days[day] = [];
     days[day].push(item);
-  });
-  // Sort days by date ascending
+  });// Sort days by date ascending
   const sortedDays = Object.keys(days).sort();
-  // For each day, create normalized object
+  
   return sortedDays.map(day => {
     const arr = days[day];
     // Min/max temp
@@ -53,11 +52,11 @@ function normalizeDailyForecast(forecastList) {
       if (item.main.temp < min) min = item.main.temp;
       if (item.main.temp > max) max = item.main.temp;
     });
-    // Midday entry for icon
+ 
     const midIdx = Math.floor(arr.length / 2);
     const iconMain = arr[midIdx].weather[0].main;
     const dt = arr[midIdx].dt;
-    // Most frequent weather type for main
+  
     const freq = {};
     arr.forEach(item => {
       const main = item.weather[0].main;
@@ -79,7 +78,7 @@ const WeatherApp = () => {
 
   useEffect(() => {
     handleCitySearch(DEFAULT_CITY);
-    // eslint-disable-next-line
+    
   }, []);
 
   const handleCitySearch = async (cityName) => {
@@ -92,11 +91,11 @@ const WeatherApp = () => {
         fetchForecastWeather(cityName)
       ]);
       setCurrent(currentData);
-      // Filter forecast for next 24 hours
+     
       const now = Date.now() / 1000;
       const next24h = forecastData.list.filter(item => item.dt >= now && item.dt <= now + 24 * 3600);
       setHourly(next24h);
-      // Normalize daily forecast: always pick 5 unique days starting from today
+    
       const allDays = normalizeDailyForecast(forecastData.list);
       console.log('Normalized days:', allDays.map(d => d.date));
       const uniqueDays = [];
@@ -162,8 +161,18 @@ const WeatherApp = () => {
           ]);
           setCurrent(currentData);
           setHourly(forecastData.list.slice(0, 8));
-          const grouped = groupForecastByDay(forecastData.list);
-          setDaily(grouped.slice(0, 5).map(dayArr => dayArr[Math.floor(dayArr.length / 2)]));
+          // Use normalized daily forecast logic (same as handleCitySearch)
+          const allDays = normalizeDailyForecast(forecastData.list);
+          const uniqueDays = [];
+          const seen = new Set();
+          for (const day of allDays) {
+            if (!seen.has(day.date)) {
+              uniqueDays.push(day);
+              seen.add(day.date);
+            }
+            if (uniqueDays.length === 5) break;
+          }
+          setDaily(uniqueDays);
           toast({
             title: 'Weather Updated',
             description: 'Weather data loaded for your location.',
@@ -242,7 +251,7 @@ const WeatherApp = () => {
             </Card>
           </div>
         )}
-        {/* Hourly Forecast Card (Below) */}
+      
         {current && (
           <div className="w-full flex justify-center">
             <Card className="w-full max-w-4xl p-6 bg-white/60 backdrop-blur-md border-white/30 shadow-xl rounded-2xl mt-4">
